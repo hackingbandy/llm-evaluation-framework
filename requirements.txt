@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-dotenv
+pandas
+openai
+textblob
+sentence-transformers
+torch
+torchvision
+torchaudio
+python-multipart # Required for FastAPI file uploads

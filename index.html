@@ -1,0 +1,240 @@
+<!-- static/index.html -->
+<!-- A simple frontend to interact with the FastAPI backend -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Evaluation Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto p-4 sm:p-8">
+        <div class="bg-white p-6 rounded-lg shadow-xl">
+
+            <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-4">LLM Evaluation Framework</h1>
+            <p class="text-gray-600 mb-6">
+                Upload a CSV or JSON file containing a 'question' column. You can also include an optional 'ground_truth' column for semantic analysis.
+            </p>
+
+            <!-- File Upload Section -->
+            <div class="mb-6">
+                <form id="uploadForm" class="flex flex-col sm:flex-row items-center">
+                    <input type="file" id="fileInput" name="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                    <button type="submit" class="mt-4 sm:mt-0 sm:ml-4 w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition duration-300">
+                        Upload and Process
+                    </button>
+                </form>
+                 <div id="uploadSpinner" class="hidden loader mt-4 mx-auto"></div>
+            </div>
+
+            <!-- Results Area -->
+            <div id="resultsArea" class="hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mt-8 mb-4">Evaluation Results</h2>
+                <p class="text-gray-600 mb-4">Click "Ask LLM" on any question to get a response and analysis.</p>
+                <div id="questionsContainer" class="space-y-4">
+                    <!-- Questions will be dynamically inserted here -->
+                </div>
+            </div>
+             <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert"></div>
+
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const resultsArea = document.getElementById('resultsArea');
+        const questionsContainer = document.getElementById('questionsContainer');
+        const uploadSpinner = document.getElementById('uploadSpinner');
+        const errorMessage = document.getElementById('error-message');
+
+        let sessionId = null;
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            uploadSpinner.classList.remove('hidden');
+            resultsArea.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'File upload failed');
+                }
+
+                const data = await response.json();
+                sessionId = data.session_id;
+                displayQuestions(data.data);
+                resultsArea.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            } finally {
+                uploadSpinner.classList.add('hidden');
+            }
+        });
+
+        function displayQuestions(questions) {
+            questionsContainer.innerHTML = '';
+            questions.forEach((q, index) => {
+                const hasGroundTruth = q.ground_truth && q.ground_truth.toString().trim() !== '';
+
+                const questionCard = document.createElement('div');
+                questionCard.className = 'p-4 bg-gray-50 rounded-lg shadow-md';
+                questionCard.id = `card-${index}`;
+                questionCard.innerHTML = `
+                    <p class="font-semibold text-gray-800">Q: ${q.question}</p>
+                    ${hasGroundTruth ? `<p class="text-sm text-green-700 mt-1"><strong>Ground Truth:</strong> ${q.ground_truth}</p>` : ''}
+                    <button onclick="askLLM('${sessionId}', '${q.question}', ${index})" class="mt-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold py-1 px-3 rounded-full transition duration-300">
+                        Ask LLM
+                    </button>
+                    <div id="spinner-${index}" class="hidden loader mt-2"></div>
+                    <div id="response-container-${index}" class="mt-4 hidden p-3 bg-white rounded-md"></div>
+                    <div id="followup-container-${index}" class="mt-2 hidden">
+                        <textarea id="followup-input-${index}" class="w-full p-2 border rounded" placeholder="Ask a follow-up question..."></textarea>
+                        <button onclick="askFollowUp('${sessionId}', ${index})" class="mt-1 bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold py-1 px-3 rounded-full transition duration-300">Send Follow-up</button>
+                    </div>
+                `;
+                questionsContainer.appendChild(questionCard);
+            });
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = `Error: ${message}`;
+            errorMessage.classList.remove('hidden');
+        }
+
+
+        async function askLLM(sessionId, question, index) {
+            const spinner = document.getElementById(`spinner-${index}`);
+            spinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, question: question, row_index: index }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to get response');
+                }
+
+                const result = await response.json();
+                displayResponse(result, index);
+                
+                // Show follow-up input
+                document.getElementById(`followup-container-${index}`).classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+                document.getElementById(`response-container-${index}`).innerHTML = `<p class="text-red-500">Error fetching response.</p>`;
+                document.getElementById(`response-container-${index}`).classList.remove('hidden');
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+        
+        async function askFollowUp(sessionId, index) {
+            const followUpInput = document.getElementById(`followup-input-${index}`);
+            const question = followUpInput.value;
+            if (!question.trim()) return;
+
+            const spinner = document.getElementById(`spinner-${index}`);
+            spinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/followup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, question, row_index: index }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to get follow-up response');
+                }
+
+                const result = await response.json();
+                appendResponse(result, index); // Append to the existing response container
+                followUpInput.value = ''; // Clear input
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+
+        function displayResponse(result, index) {
+            const container = document.getElementById(`response-container-${index}`);
+            const sentimentColor = result.analysis.sentiment.polarity > 0.1 ? 'text-green-600' : result.analysis.sentiment.polarity < -0.1 ? 'text-red-600' : 'text-gray-600';
+
+            container.innerHTML = `
+                <div class="mb-2">
+                    <p class="font-semibold text-blue-800">LLM Response:</p>
+                    <p class="text-gray-700">${result.llm_response}</p>
+                </div>
+                <div class="mt-3 pt-3 border-t">
+                    <h4 class="font-semibold text-gray-800">Analysis:</h4>
+                    <ul class="list-disc list-inside text-sm text-gray-600">
+                        <li>Word Count: ${result.analysis.word_count}</li>
+                        <li class="${sentimentColor}">Sentiment Polarity: ${result.analysis.sentiment.polarity.toFixed(2)}</li>
+                        <li>Sentiment Subjectivity: ${result.analysis.sentiment.subjectivity.toFixed(2)}</li>
+                        <li>Semantic Similarity: ${typeof result.analysis.semantic_similarity_score === 'number' ? result.analysis.semantic_similarity_score.toFixed(2) + '%' : result.analysis.semantic_similarity_score}</li>
+                    </ul>
+                </div>
+            `;
+            container.classList.remove('hidden');
+        }
+
+        function appendResponse(result, index) {
+            const container = document.getElementById(`response-container-${index}`);
+            
+            const followUpBlock = document.createElement('div');
+            followUpBlock.className = 'mt-4 pt-4 border-t border-dashed';
+            followUpBlock.innerHTML = `
+                <p class="font-semibold text-gray-800">Follow-up Q: ${result.question}</p>
+                <div class="mt-2">
+                    <p class="font-semibold text-blue-800">LLM Response:</p>
+                    <p class="text-gray-700">${result.llm_response}</p>
+                </div>
+            `;
+            container.appendChild(followUpBlock);
+        }
+
+    </script>
+</body>
+</html>
