@@ -177,14 +177,10 @@ async def get_results(session_id: str):
 
 # To run this app:
 # 1. Make sure you have all packages from requirements.txt installed.
-# 2. Save this file as main.py
-# 3. Create a 'static' directory and place index.html inside it.
-# 4. Run `uvicorn main:app --reload` in your terminal.
-# 5. Open your browser to http://127.0.0.1:8000
+# 2. Run `uvicorn main:app --reload` in your terminal.
+# 3. Open your browser to http://127.0.0.1:8000
 
 
 # .env
 # IMPORTANT: Create this file in the same directory as your main.py
 # and replace "your_api_key_here" with your actual OpenAI API key.
-
-OPENAI_API_KEY="your_api_key_here"
