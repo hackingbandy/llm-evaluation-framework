@@ -184,3 +184,5 @@ async def get_results(session_id: str):
 # .env
 # IMPORTANT: Create this file in the same directory as your main.py
 # and replace "your_api_key_here" with your actual OpenAI API key.
+
+# OPENAI_API_KEY="your_api_key_here"
