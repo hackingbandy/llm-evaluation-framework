@@ -16,6 +16,8 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise ValueError("OPENAI_API_KEY not found in environment variables. Please set it in a .env file.")
 
+print(f"API Key found: {api_key[:8]}...") # Print first 8 characters of API key for verification
+
 client = OpenAI(api_key=api_key)
 
 def get_llm_response(prompt: str, history: list = None) -> str:
