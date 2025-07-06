@@ -186,6 +186,26 @@ print("="*50)
 print("RAG SYSTEM TESTING COMPLETE")
 print("="*50)
 
+# =============================================================================
+# Graph Visualization
+# =============================================================================
+# Save the graph image to a file
+print("Saving graph visualization...")
+try:
+    # Generate the graph image
+    graph_image = graph.get_graph().draw_mermaid_png()
+    
+    # Save to file
+    with open("rag_graph.png", "wb") as f:
+        f.write(graph_image)
+    
+    print("✅ Graph saved as 'rag_graph.png'")
+    print("📁 You can find the image in your current directory")
+    
+except Exception as e:
+    print(f"❌ Error saving graph: {e}")
+    print("💡 Make sure you have the required dependencies installed")
+
 # Optional: Display the graph (requires IPython)
 # Uncomment the following lines if you want to visualize the graph:
 # from IPython.display import Image, display
