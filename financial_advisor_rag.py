@@ -294,14 +294,39 @@ print("="*60)
 print("FINANCIAL ADVISOR RAG SYSTEM TESTING")
 print("="*60)
 
-# Test questions
-test_questions = [
-    "Was ist der beste Weg für einen Anfänger zu investieren?",
-    "Wie funktioniert ein ETF und welche Risiken gibt es?",
-    "Sollte ich in Apple Aktien investieren?",
-    "Wie kann ich mein Portfolio diversifizieren?",
-    "Was sind die aktuellen Trends im Technologie-Sektor?"
-]
+# Load questions from CSV file
+def load_questions_from_csv(csv_file: str = "catalog.csv") -> List[str]:
+    """
+    Load test questions from CSV file.
+    """
+    try:
+        df = pd.read_csv(csv_file)
+        
+        # Check if 'question' column exists
+        if 'question' in df.columns:
+            questions = df['question'].tolist()
+            print(f"✅ Loaded {len(questions)} questions from {csv_file}")
+            return questions
+        else:
+            print(f"❌ No 'question' column found in {csv_file}")
+            print(f"Available columns: {list(df.columns)}")
+            return []
+            
+    except FileNotFoundError:
+        print(f"❌ CSV file '{csv_file}' not found")
+        
+    except Exception as e:
+        print(f"❌ Error loading CSV: {e}")
+        return []
+
+# Load questions from CSV
+test_questions = load_questions_from_csv()
+
+if not test_questions:
+    print("❌ No questions loaded.")
+
+# Test each question and collect results
+results_data = []
 
 for i, question in enumerate(test_questions, 1):
     print(f"\n🧪 Test {i}: {question}")
@@ -314,10 +339,48 @@ for i, question in enumerate(test_questions, 1):
         print(f"📈 Financial data: {result['financial_data'][:100]}...")
         print(f"💡 AI Response: {result['answer']}")
         
+        # Store results for CSV export
+        results_data.append({
+            'question': question,
+            'ai_response': result['answer'],
+            'financial_data': result['financial_data'],
+            'context_count': len(result['context']),
+            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
+        
     except Exception as e:
         print(f"❌ Error: {e}")
+        results_data.append({
+            'question': question,
+            'ai_response': f"Error: {str(e)}",
+            'financial_data': '',
+            'context_count': 0,
+            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
     
     print("-" * 50)
+
+# Save results to CSV
+def save_results_to_csv(results: List[dict], filename: str = "financial_advisor_results.csv"):
+    """
+    Save test results to CSV file.
+    """
+    try:
+        df = pd.DataFrame(results)
+        df.to_csv(filename, index=False, encoding='utf-8')
+        print(f"\n✅ Results saved to {filename}")
+        print(f"📊 Total questions tested: {len(results)}")
+        
+        # Show summary
+        successful_tests = len([r for r in results if not r['ai_response'].startswith('Error')])
+        print(f"✅ Successful responses: {successful_tests}")
+        print(f"❌ Failed responses: {len(results) - successful_tests}")
+        
+    except Exception as e:
+        print(f"❌ Error saving results: {e}")
+
+# Save results
+save_results_to_csv(results_data)
 
 print("="*60)
 print("FINANCIAL ADVISOR RAG SYSTEM TESTING COMPLETE")
@@ -352,9 +415,18 @@ print("="*60)
 print("""
 🎯 VERWENDUNG:
 1. Starten Sie das System: python financial_advisor_rag.py
-2. Stellen Sie Finanzfragen über die Web-Oberfläche
-3. Das System liefert EU AI Act konforme Antworten
-4. Aktuelle Finanzdaten werden automatisch integriert
+2. Das System lädt automatisch Fragen aus catalog.csv
+3. Jede Frage wird mit dem RAG-System beantwortet
+4. Ergebnisse werden in financial_advisor_results.csv gespeichert
+
+📁 CSV-DATEIEN:
+- catalog.csv: Eingabefragen (Spalte: 'question')
+- financial_advisor_results.csv: Ausgabeergebnisse
+  - question: Ursprungsfrage
+  - ai_response: KI-Antwort
+  - financial_data: Aktuelle Finanzdaten
+  - context_count: Anzahl geladener Dokumente
+  - timestamp: Zeitstempel
 
 🔒 COMPLIANCE-FEATURES:
 - Automatische KI-Kennzeichnung
@@ -369,9 +441,18 @@ print("""
 - Portfolio-Beispiele
 - Marktübersichten
 
-💡 BEISPIEL-FRAGEN:
-- "Wie funktioniert Diversifikation?"
-- "Was sind ETFs?"
-- "Sollte ich in Tech-Aktien investieren?"
-- "Wie kann ich mein Risiko minimieren?"
+💡 BEISPIEL-FRAGEN (catalog.csv):
+- "Was ist der beste Weg für einen Anfänger zu investieren?"
+- "Wie funktioniert ein ETF und welche Risiken gibt es?"
+- "Sollte ich in Apple Aktien investieren?"
+- "Wie kann ich mein Portfolio diversifizieren?"
+- "Was sind die aktuellen Trends im Technologie-Sektor?"
+
+🔄 WORKFLOW:
+1. Fragen aus catalog.csv laden
+2. RAG-System für jede Frage ausführen
+3. Finanzdaten automatisch integrieren
+4. EU AI Act konforme Antworten generieren
+5. Ergebnisse in CSV speichern
+6. Zusammenfassung anzeigen
 """)
