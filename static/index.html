@@ -30,8 +30,18 @@
 
             <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-4">LLM Evaluation Framework</h1>
             <p class="text-gray-600 mb-6">
-                Upload a CSV or JSON file containing a 'question' column. You can also include an optional 'ground_truth' column for semantic analysis.
+                Upload a CSV or JSON file containing a 'question' column. You can also include an optional 'ground_truth' column for semantic analysis.<br>
+                <span class="font-semibold">Or start chatting with the bot below:</span>
             </p>
+
+            <!-- Chat Window Section -->
+            <div class="mb-8" id="chat-section">
+                <div id="chat-window" class="bg-gray-50 rounded-lg p-4 h-80 overflow-y-auto mb-2 border border-gray-200"></div>
+                <form id="chatForm" class="flex mt-2">
+                    <input id="chatInput" type="text" class="flex-1 border rounded-l px-3 py-2 focus:outline-none" placeholder="Type your message..." autocomplete="off" />
+                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-r">Send</button>
+                </form>
+            </div>
 
             <!-- File Upload Section -->
             <div class="mb-6">
@@ -234,6 +244,77 @@
             `;
             container.appendChild(followUpBlock);
         }
+
+        // --- Chat Window Logic ---
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const chatWindow = document.getElementById('chat-window');
+        let chatHistory = [];
+        let chatStarted = false;
+
+        function appendChatMessage(sender, message, analysis) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = sender === 'user' ? 'text-right mb-2' : 'text-left mb-2';
+            msgDiv.innerHTML = `<span class=\"inline-block px-3 py-2 rounded-lg ${sender === 'user' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}\">${message}</span>`;
+            chatWindow.appendChild(msgDiv);
+            if (sender === 'bot' && analysis) {
+                const analysisDiv = document.createElement('div');
+                analysisDiv.className = 'text-xs text-gray-600 mb-2 ml-2';
+                analysisDiv.innerHTML = `<div class='mt-1 p-2 bg-gray-50 border rounded'><b>Analyse:</b><br>
+                    ${Object.entries(analysis).map(([k, v]) => `<b>${k}:</b> ${typeof v === 'object' ? JSON.stringify(v) : v}`).join('<br>')}
+                </div>`;
+                chatWindow.appendChild(analysisDiv);
+            }
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message) return;
+            appendChatMessage('user', message);
+            chatInput.value = '';
+            // Send to backend
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, history: chatHistory })
+                });
+                if (!response.ok) {
+                    throw new Error('Error from chat API');
+                }
+                const data = await response.json();
+                // On first message, show bot intro if present
+                if (!chatStarted && data.history && data.history.length > 0) {
+                    for (const turn of data.history) {
+                        if (turn.role === 'assistant') {
+                            appendChatMessage('bot', turn.content, data.analysis);
+                        }
+                    }
+                    chatStarted = true;
+                } else {
+                    appendChatMessage('bot', data.response, data.analysis);
+                }
+                chatHistory = data.history;
+            } catch (err) {
+                appendChatMessage('bot', 'Fehler beim Abrufen der Antwort.');
+            }
+        });
+
+        // On page load, show bot intro and analysis
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/chat_intro');
+                if (!response.ok) return;
+                const data = await response.json();
+                appendChatMessage('bot', data.response, data.analysis);
+                chatHistory = data.history;
+                chatStarted = true;
+            } catch (err) {
+                appendChatMessage('bot', 'Fehler beim Laden der Bot-Intro.');
+            }
+        });
 
     </script>
 </body>
