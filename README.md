@@ -7,10 +7,11 @@ Start command: `uvicorn main:app --reload`
 
 # To-Do's
 - [x] clean the project
-- [ ] read https://python.langchain.com/docs/tutorials/rag/
-- [ ] build a RAG-System
-- [ ] implement ragas to evaluate the response
+- [x] read https://python.langchain.com/docs/tutorials/rag/
+- [x] build a RAG-System
 - [ ] read https://docs.ragas.io/en/stable/getstarted/evals/
+- [ ] implement ragas to evaluate the response
+
 
 
 
