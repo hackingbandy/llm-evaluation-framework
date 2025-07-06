@@ -8,7 +8,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-rag_graph.png
+*.png
 *.csv
 archive/
 .Python
