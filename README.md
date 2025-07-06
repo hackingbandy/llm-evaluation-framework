@@ -2,7 +2,6 @@
 
 **Python 3.12 Compatible**
 
-Port: http://127.0.0.1:8000
 Start command: `uvicorn main:app --reload`
 
 
