@@ -2,13 +2,14 @@
 __pycache__/
 *.py[cod]
 *$py.class
-/catalog.csv
+
 
 # C extensions
 *.so
 
 # Distribution / packaging
-rag_graph.png
+*.png
+*.csv
 archive/
 .Python
 build/
