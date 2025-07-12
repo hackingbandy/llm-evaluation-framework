@@ -34,8 +34,7 @@ class RAG:
         """Generate an answer for a given query based on the most relevant document."""
         prompt = f"question: {query}\n\nDocuments: {relevant_doc}"
         messages = [
-            ("system", """You are a helpful Financial Advisor that answers questions based on given documents only.
-                        """),
+            ("system", """You are a helpful assistant that answers questions based on given documents only."""),
             ("human", prompt),
         ]
         ai_msg = self.llm.invoke(messages)
