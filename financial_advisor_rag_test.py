@@ -156,7 +156,8 @@ for source in financial_sources:
 # Add financial data as documents
 financial_data_doc = Document(
     page_content=get_portfolio_examples(),
-    metadata={"source": "financial_data", "type": "portfolio_examples"}
+    metadata={"source": "financial_data", 
+              "type": "portfolio_examples"}
 )
 all_docs.append(financial_data_doc)
 
@@ -201,8 +202,7 @@ ANTWORTE ALS FINANZBERATER:
 - Verwende den bereitgestellten Kontext für fundierte Antworten
 - Integriere aktuelle Marktdaten wenn relevant
 - Betone Risikomanagement und Diversifikation
-- Schließe mit einem Hinweis auf professionelle Beratung
-- Verwende maximal 4-5 Sätze für eine präzise Antwort
+- Verwende maximal 3-4 Sätze für eine präzise Antwort
 
 Beispiel-Format:
 "Guten Tag! Als KI-Finanzberater kann ich Ihnen Informationen zu [Thema] geben. Basierend auf den aktuellen Marktdaten... [Antwort mit Kontext]. Wichtig ist dabei immer die Diversifikation und das Bewusstsein für Risiken.
