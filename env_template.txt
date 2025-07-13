@@ -1,0 +1,18 @@
+# =============================================================================
+# Environment Variables Template for Financial Advisor RAG System
+# =============================================================================
+# Copy this file to .env and fill in your actual values
+
+# OpenAI API Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+
+# User Agent (optional but recommended)
+USER_AGENT=LLM-Evaluation-Framework/1.0
+
+# Model Configuration (optional - defaults to gpt-4o-mini)
+OPENAI_MODEL=gpt-4o-mini
+
+# Evaluation Configuration (optional)
+MAX_QUESTIONS=8
+CHUNK_SIZE=1000
+CHUNK_OVERLAP=200 
