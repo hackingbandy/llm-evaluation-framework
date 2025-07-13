@@ -1,160 +1,141 @@
-# Financial Advisor RAG System with EU AI Act Evaluation
+# Financial Advisor RAG System with Comprehensive Evaluation
 
-Ein vereinfachtes RAG-System für Finanzberatung mit automatischer EU AI Act Compliance-Evaluation.
+A comprehensive RAG (Retrieval-Augmented Generation) system for financial advice that evaluates responses using both RAGAS metrics and LLM-based evaluation for EU AI Act compliance.
 
-## 🚀 Schnellstart
+## Features
 
-### 1. Installation
+- **Document Processing**: Loads and processes financial PDF documents
+- **Question Catalog**: Uses questions from `catalog.csv` for evaluation
+- **RAGAS Evaluation**: Standard RAG metrics (context_relevancy, answer_relevancy, faithfulness)
+- **LLM-Based Evaluation**: Custom evaluation for EU AI Act compliance metrics
+- **Configurable Metrics**: JSON-based configuration for easy customization
+- **Fallback Evaluation**: Basic evaluation when RAGAS is unavailable
 
-```bash
-# Dependencies installieren
-pip install -r requirements.txt
+## Quick Start
 
-# Environment-Variablen einrichten
-cp env_template.txt .env
-# Bearbeite .env und füge deinen OpenAI API Key hinzu
-```
-
-### 2. Vorbereitung
-
-Stelle sicher, dass folgende Dateien/Ordner vorhanden sind:
-
-- `financial_data/` - Ordner mit PDF-Dokumenten
-- `catalog.csv` - Datei mit Fragen (Spalten: Question-ID, Category, Question)
-- `.env` - Environment-Variablen (siehe env_template.txt)
-
-### 3. Ausführung
-
-```bash
-python financial_advisor_rag.py
-```
-
-## 📁 Projektstruktur
-
-```
-llm-evaluation-framework/
-├── financial_advisor_rag.py      # Haupt-RAG-System
-├── requirements.txt              # Python-Dependencies
-├── env_template.txt              # Environment-Template
-├── catalog.csv                   # Fragen-Katalog
-├── financial_data/               # PDF-Dokumente
-│   ├── skript_grundz__ge_der_portefeuilletheorie.pdf
-│   ├── skriptkapitalmarkttheorie.pdf
-│   └── ... (weitere PDFs)
-└── evaluation_results.txt        # Ergebnisse (wird erstellt)
-```
-
-## 🔧 Konfiguration
-
-### Environment-Variablen (.env)
-
-```bash
-OPENAI_API_KEY=your_openai_api_key_here
-USER_AGENT=LLM-Evaluation-Framework/1.0
-OPENAI_MODEL=gpt-4o-mini
-MAX_QUESTIONS=8
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
-```
-
-### catalog.csv Format
-
-```csv
-Question-ID,Category,Question
-1,Portfolio Advice,"Advise on investing 10,000 euros..."
-2,Risk Management,"Analyze the potential impact..."
-...
-```
-
-## 📊 Evaluation
-
-Das System evaluiert automatisch:
-
-### RAGAS Metriken
-- **ContextRelevancy**: Relevanz der gefundenen Dokumente
-- **AnswerRelevancy**: Relevanz der Antworten
-- **AnswerCorrectness**: Richtigkeit der Antworten
-- **AnswerFaithfulness**: Basiert Antwort auf Dokumenten
-
-### EU AI Act Compliance
-- **Transparency**: AI-Identifikation, Disclaimer
-- **Fairness**: Unvoreingenommene Behandlung
-- **Safety**: Risikobewertung, Sicherheitsmaßnahmen
-- **Privacy**: PII-Schutz, Datenschutz
-- **Accountability**: Verantwortlichkeit, Compliance
-
-## 📈 Ergebnisse
-
-Die Evaluation wird in `evaluation_results.txt` gespeichert:
-
-```
-FINANCIAL ADVISOR RAG EVALUATION
-========================================
-
-RAGAS METRICS:
-   context_relevancy: 0.850
-   answer_relevancy: 0.920
-   answer_correctness: 0.880
-   answer_faithfulness: 0.910
-
-EU AI ACT COMPLIANCE:
-   transparency: 0.850
-   fairness: 0.780
-   safety: 0.920
-   privacy: 0.880
-   accountability: 0.750
-
-Overall Compliance: 0.836
-```
-
-## 🎯 Features
-
-- ✅ **Einfache Bedienung**: Ein Befehl startet alles
-- ✅ **EU AI Act Compliance**: Automatische Evaluation
-- ✅ **PDF-Verarbeitung**: Lädt alle PDFs aus financial_data/
-- ✅ **Fragen-Katalog**: Verwendet catalog.csv für Evaluation
-- ✅ **Detaillierte Ergebnisse**: RAGAS + EU AI Act Metriken
-- ✅ **Compliance-Status**: ✅⚠️❌ Anzeige
-
-## 🔒 Compliance
-
-Das System ist konform mit:
-- **EU AI Act** (Verordnung EU 2024/1689)
-- **Banking Regulations**
-- **Privacy Requirements**
-
-## 🛠️ Troubleshooting
-
-### Häufige Probleme
-
-1. **OpenAI API Key fehlt**
+1. **Setup Environment**:
    ```bash
-   # Prüfe .env Datei
-   cat .env
+   pip install -r requirements.txt
+   cp env_template.txt .env
+   # Add your OpenAI API key to .env
    ```
 
-2. **PDFs werden nicht geladen**
+2. **Prepare Data**:
+   - Add financial PDF documents to `financial_data/`
+   - Ensure `catalog.csv` contains questions and categories
+
+3. **Run Tests**:
    ```bash
-   # Prüfe financial_data/ Ordner
-   ls financial_data/
+   python test_system.py
    ```
 
-3. **catalog.csv nicht gefunden**
+4. **Run Evaluation**:
    ```bash
-   # Prüfe ob Datei existiert
-   ls catalog.csv
+   python financial_advisor_rag.py
    ```
 
-### Logs
+## Configuration
 
-Das System zeigt detaillierte Logs:
-- ✅ Erfolgreiche Operationen
-- ❌ Fehler mit Details
-- 📊 Evaluation-Fortschritt
+The system uses `metrics_config.json` for configuration:
 
-## 📝 Lizenz
+```json
+{
+  "evaluation_dimensions": {
+    "accuracy_performance": {
+      "description": "Assesses correctness, relevance, and usefulness of responses",
+      "metrics": {
+        "context_relevancy": {
+          "ragas_metric": "context_relevancy",
+          "description": "Assesses if retrieved contexts are relevant to the question",
+          "prompt": "Rate how relevant the retrieved documents are...",
+          "fallback": "keyword_matching"
+        }
+      }
+    }
+  },
+  "evaluation_settings": {
+    "max_questions": 8,
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "evaluation_model": "gpt-4o-mini"
+  }
+}
+```
 
-Dieses Projekt ist Teil des LLM Evaluation Framework.
+## Evaluation Metrics
+
+### RAGAS Metrics (when available)
+- **Context Relevancy**: Assesses if retrieved contexts are relevant
+- **Answer Relevancy**: Assesses if the answer is relevant to the question
+- **Faithfulness**: Determines if response is grounded in provided context
+
+### LLM-Based Metrics (EU AI Act Compliance)
+- **Transparency**: AI identification and capability disclosure
+- **Safety**: Risk assessment and safety measures
+- **Privacy**: PII protection and data privacy
+- **Fairness**: Unbiased treatment across demographic groups
+- **Accountability**: Clear responsibility and oversight mechanisms
+
+### Fallback Methods
+When RAGAS metrics are unavailable, the system uses:
+- **Keyword Matching**: Simple keyword-based evaluation
+- **PII Detection**: Pattern-based personal data detection
+- **Bias Detection**: Bias indicator analysis
+- **Context Overlap**: Word overlap analysis
+
+## File Structure
+
+```
+├── financial_advisor_rag.py    # Main system
+├── test_system.py              # Test suite
+├── metrics_config.json         # Metrics configuration
+├── requirements.txt            # Dependencies
+├── catalog.csv                 # Question catalog
+├── financial_data/             # PDF documents
+├── .env                        # Environment variables
+└── README.md                   # This file
+```
+
+## Output
+
+The system generates:
+- **Console Output**: Real-time evaluation progress and results
+- **evaluation_results.txt**: Detailed evaluation report
+- **Status Indicators**: ✅ Excellent, ✅ Good, ⚠️ Acceptable, ❌ Needs Improvement
+
+## Requirements
+
+- Python 3.8+
+- OpenAI API key
+- Financial PDF documents
+- Question catalog (catalog.csv)
+
+## Troubleshooting
+
+1. **Import Errors**: Run `pip install -r requirements.txt`
+2. **API Key Issues**: Check `.env` file configuration
+3. **RAGAS Issues**: System falls back to LLM-based evaluation
+4. **File Not Found**: Ensure all required files are in place
+
+## Customization
+
+- **Add Metrics**: Edit `metrics_config.json` to add new evaluation dimensions
+- **Modify Prompts**: Update evaluation prompts in the configuration
+- **Change Models**: Modify `evaluation_model` in settings
+- **Adjust Thresholds**: Update score thresholds for different performance levels
+
+## EU AI Act Compliance
+
+The system evaluates compliance with EU AI Act (Regulation EU 2024/1689) requirements:
+- **Transparency**: Clear AI identification and capability disclosure
+- **Safety**: Risk assessment and appropriate safety measures
+- **Privacy**: Protection of personal data and PII
+- **Fairness**: Unbiased treatment across all demographic groups
+- **Accountability**: Clear responsibility assignment and oversight
+
+## License
+
+This project is for educational and research purposes. Ensure compliance with applicable regulations when using in production environments.
 
 
 
