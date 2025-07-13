@@ -1,30 +1,22 @@
-# =============================================================================
-# LLM Evaluation Framework - Python 3.12 Requirements
-# =============================================================================
-
-# Core Web Framework
-fastapi>=0.104.0
-uvicorn[standard]>=0.24.0
-python-multipart>=0.0.6
-
-# Environment & Configuration
+# Core dependencies
+langchain-openai>=0.1.0
+langchain-community>=0.0.20
+openai>=1.0.0
 python-dotenv>=1.0.0
 
-# Data Processing & Analysis
-pandas>=2.1.0
+# Data processing
+pandas>=2.0.0
 numpy>=1.24.0
 
-# LLM & AI Framework
-langchain>=0.1.0
-langchain-openai>=0.0.5
-langchain-community>=0.0.10
-openai>=1.3.0
+# Web scraping for EU AI Act website
+requests>=2.31.0
+beautifulsoup4>=4.12.0
 
-# RAGAS Evaluation
-ragas>=0.1.0
+# Progress bars
+tqdm>=4.65.0
 
-# PDF Processing
-pypdf>=3.17.0
+# Document processing (fallback)
+pypdf>=3.0.0
 
-# HTTP & Networking
-urllib3>=2.0.0
+# Optional: For advanced evaluation (not required)
+# ragas>=0.1.0
