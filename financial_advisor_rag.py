@@ -470,13 +470,32 @@ def create_dataset(rag, questions, categories):
                     "ground_truth": f"Financial advice for {category}",
                     "category": category
                 })
+                pbar.update(1)
                 
             except Exception as e:
-                print(f"\n❌ Error processing question: {e}")
-            
-            pbar.update(1)
+                print(f"Error processing question: {e}")
+                continue
     
     return dataset
+
+def save_qa_catalog(dataset, filename="qa_catalog.csv"):
+    """Save questions and answers to a simple CSV catalog."""
+    qa_data = []
+    
+    for item in dataset:
+        qa_data.append({
+            "Question": item["question"],
+            "Category": item["category"],
+            "Financial_Advisor_Answer": item["answer"],
+            "Context_Chunks": len(item["contexts"])
+        })
+    
+    df = pd.DataFrame(qa_data)
+    df.to_csv(filename, index=False, encoding='utf-8')
+    print(f"✅ QA Catalog saved to {filename}")
+    print(f"📊 Total Q&A pairs: {len(qa_data)}")
+    
+    return df
 
 def run_evaluation(dataset, metrics_config):
     """Run comprehensive LLM-based evaluation with progress bar."""
@@ -613,6 +632,9 @@ def main():
     print(f"\n🔄 Creating dataset...")
     dataset = create_dataset(rag, questions, categories)
     print(f"✅ Created dataset with {len(dataset)} entries")
+    
+    # Save QA catalog
+    save_qa_catalog(dataset)
     
     # Evaluate
     print(f"\n🔍 Running evaluation...")
