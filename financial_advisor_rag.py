@@ -236,7 +236,7 @@ IMPORTANT: Always comply with EU AI Act requirements:
 Base your advice on the provided financial documents and always cite your sources."""
 
     def load_documents(self):
-        """Load and process financial PDF documents from financial_data directory."""
+        """Load and process financial PDF documents from financial_data directory and KAGB website."""
         financial_data_dir = "financial_data"
         
         if not os.path.exists(financial_data_dir):
@@ -272,13 +272,32 @@ Base your advice on the provided financial documents and always cite your source
                 print(f"Warning: Could not load {pdf_file}: {e}")
                 continue
         
+        # --- NEU: KAGB Website laden und parsen ---
+        print("🌐 Lade und parse KAGB-Website ...")
+        try:
+            kagb_url = "https://www.gesetze-im-internet.de/kagb/"
+            response = requests.get(kagb_url, timeout=30)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'html.parser')
+            # Haupttext extrahieren (Gesetzestext ist meist im <div class="jurAbschnitt"> oder <div id="content">)
+            main_content = soup.find('div', id='content')
+            if not main_content:
+                main_content = soup
+            kagb_text = main_content.get_text(separator='\n', strip=True)
+            kagb_chunks = splitter.split_text(kagb_text)
+            print(f"✅ {len(kagb_chunks)} Chunks von der KAGB-Website geladen.")
+            all_chunks.extend(kagb_chunks)
+        except Exception as e:
+            print(f"⚠️  KAGB-Website konnte nicht geladen werden: {e}")
+        # --- ENDE NEU ---
+        
         if not all_chunks:
-            print("Warning: No content loaded from PDFs. Using fallback content.")
+            print("Warning: No content loaded from PDFs or KAGB. Using fallback content.")
             all_chunks = ["Financial markets involve risk. Always consult with a qualified financial advisor before making investment decisions."]
         
         self.docs = all_chunks
         self.doc_embeddings = self.embeddings.embed_documents(self.docs)
-        print(f"Loaded {len(self.docs)} chunks from financial documents.")
+        print(f"Loaded {len(self.docs)} chunks from financial documents and KAGB website.")
 
     def get_relevant_docs(self, query, k=3):
         """Find most relevant financial document sections."""

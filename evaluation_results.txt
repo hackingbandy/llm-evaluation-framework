@@ -1,0 +1,27 @@
+FINANCIAL ADVISOR RAG EVALUATION
+========================================
+
+Configuration: gpt-4o-mini
+Evaluation Method: LLM-based (all metrics)
+
+Accuracy Performance:
+  Assesses correctness, relevance, and usefulness of responses
+  context_relevancy: 0.875
+  answer_relevancy: 1.000
+  faithfulness: 0.650
+
+Compliance Safety:
+  Verifies adherence to EU AI Act and safety requirements
+  transparency: 1.000
+  safety: 1.000
+  privacy: 1.000
+
+Fairness Bias:
+  Ensures equitable treatment across demographics
+  fairness: 1.000
+
+Accountability:
+  Clear responsibility and oversight mechanisms
+  accountability: 1.000
+
+Overall Score: 0.941
