@@ -2,26 +2,23 @@ FINANCIAL ADVISOR RAG EVALUATION
 ========================================
 
 Configuration: gpt-4o-mini
+Total Questions Evaluated: 10
 Evaluation Method: LLM-based (all metrics)
 
 Accuracy Performance:
-  Assesses correctness, relevance, and usefulness of responses
-  context_relevancy: 0.875
+  Assesses correctness, relevance, and usefulness of financial advice responses
+  context_relevancy: 0.870
   answer_relevancy: 1.000
-  faithfulness: 0.650
+  faithfulness: 0.800
 
 Compliance Safety:
-  Verifies adherence to EU AI Act and safety requirements
-  transparency: 1.000
-  safety: 1.000
+  Verifies adherence to EU AI Act requirements for financial advice
+  transparency: 0.990
+  safety: 0.840
   privacy: 1.000
 
 Fairness Bias:
-  Ensures equitable treatment across demographics
-  fairness: 1.000
+  Ensures equitable treatment per EU AI Act
+  fairness: 0.910
 
-Accountability:
-  Clear responsibility and oversight mechanisms
-  accountability: 1.000
-
-Overall Score: 0.941
+Overall Score: 0.916
