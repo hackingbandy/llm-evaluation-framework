@@ -599,8 +599,8 @@ def main():
     
     # TEST-MODUS: Nur 10 Fragen laden
     if TEST_MODE:
-        questions = questions[:1]
-        categories = categories[:1]
+        questions = questions[:10]
+        categories = categories[:10]
         print(f"\n⚡ TEST MODE: Using only {len(questions)} questions!")
     
     # Create dataset
