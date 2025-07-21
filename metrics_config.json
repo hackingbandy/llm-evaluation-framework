@@ -52,8 +52,15 @@
         }
     },
     "evaluation_settings": {
-        "chunk_size": 1000,
-        "chunk_overlap": 200,
-        "max_tokens": 2000
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "max_tokens": 2000,
+    "evaluation_model": "gpt-4o-mini",
+    "score_thresholds": {
+        "excellent": 0.8,
+        "good": 0.7,
+        "acceptable": 0.5,
+        "poor": 0.3
     }
+}
 } 
