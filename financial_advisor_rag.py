@@ -2,6 +2,9 @@
 # Financial Advisor RAG System with Financial Data and EU AI Act Evaluation
 # =============================================================================
 
+# Test-Flag: Wenn True, werden nur 10 Fragen geladen
+TEST_MODE = True
+
 import os
 import json
 import pandas as pd
@@ -585,6 +588,12 @@ def main():
     print("\n📝 Loading questions...")
     questions, categories = load_questions()
     print(f"📋 Loaded {len(questions)} questions from catalog")
+    
+    # TEST-MODUS: Nur 10 Fragen laden
+    if TEST_MODE:
+        questions = questions[:10]
+        categories = categories[:10]
+        print(f"⚡ TEST MODE: Using only {len(questions)} questions!")
     
     # Create dataset
     print(f"\n🔄 Creating dataset...")
