@@ -599,9 +599,9 @@ def main():
     
     # TEST-MODUS: Nur 10 Fragen laden
     if TEST_MODE:
-        questions = questions[:10]
-        categories = categories[:10]
-        print(f"⚡ TEST MODE: Using only {len(questions)} questions!")
+        questions = questions[:1]
+        categories = categories[:1]
+        print(f"\n⚡ TEST MODE: Using only {len(questions)} questions!")
     
     # Create dataset
     print(f"\n🔄 Creating dataset...")
@@ -609,13 +609,9 @@ def main():
     print(f"✅ Created dataset with {len(dataset)} entries")
     
     # Save QA catalog
+    print(f"\n🔍 Running evaluation...")
     results, per_question_scores = run_evaluation(dataset, metrics_config)
     save_qa_catalog(dataset, per_question_scores)
-    
-    # Evaluate
-    print(f"\n🔍 Running evaluation...")
-    results = run_evaluation(dataset, metrics_config)
-    
     # Display and save
     display_results(results, metrics_config)
     save_results(results, metrics_config, len(questions))
