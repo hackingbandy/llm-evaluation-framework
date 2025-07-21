@@ -20,7 +20,9 @@ async def main():
         "response": "The company experienced an 8% increase in Q3 2024, largely due to effective marketing strategies and product adaptation, with expectations of continued growth in the coming quarter.",
     }
 
-    metric = AspectCritic(name="summary_accuracy", llm=evaluator_llm, definition="Verify if the summary is accurate.")
+    metric = AspectCritic(name="summary_accuracy", 
+                          llm=evaluator_llm, 
+                          definition="Verify if the summary is accurate.")
     test_data = SingleTurnSample(**test_data)
     result = await metric.single_turn_ascore(test_data)
     print(f"Score: {result}")
