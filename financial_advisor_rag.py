@@ -2,10 +2,9 @@
 # Financial Advisor RAG System with Financial Data and EU AI Act Evaluation
 # =============================================================================
 
-# Test-Flag: Wenn True, werden nur 10 Fragen geladen
+# Test-Flag: Wenn True, werden nur 1 Fragen geladen
 TEST_MODE = True
-# Test-Flag: Wenn True, werden nur 3 Metriken getestet
-TEST_METRICS_SHORT = True
+
 
 import os
 import json
@@ -468,14 +467,11 @@ def run_evaluation(dataset, metrics_config):
     per_question_scores = [{} for _ in range(len(dataset))]  # Liste von Dicts für jede Frage
     llm_evaluator = LLMEvaluator(metrics_config["evaluation_settings"].get("evaluation_model", "gpt-4o-mini"))
 
-    # Metrik-Liste ggf. kürzen
+    # Metrik-Liste: alle Metriken aus der Konfiguration
     metric_tuples = []
     for dimension, config in metrics_config["evaluation_dimensions"].items():
         for metric_name, metric_config in config["metrics"].items():
             metric_tuples.append((dimension, metric_name, metric_config))
-    if TEST_METRICS_SHORT:
-        metric_tuples = metric_tuples[:3]
-        print(f"⚡ TEST_METRICS_SHORT: Only testing {len(metric_tuples)} metrics!")
 
     # Count total evaluations needed
     total_evaluations = len(metric_tuples) * len(dataset)
@@ -599,7 +595,7 @@ def main():
     
     # TEST-MODUS: Nur 10 Fragen laden
     if TEST_MODE:
-        questions = questions[:10]
+        questions = questions[:1]
         categories = categories[:10]
         print(f"\n⚡ TEST MODE: Using only {len(questions)} questions!")
     
