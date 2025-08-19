@@ -3,7 +3,7 @@
 # =============================================================================
 
 # Test-Flag: Wenn True, werden nur 1 Fragen geladen
-TEST_MODE = True
+TEST_MODE = False
 
 
 import os
@@ -169,6 +169,7 @@ class FinancialAdvisorRAG:
         self.system_prompt = """You are a professional financial advisor AI system. You provide financial advice based on the provided financial documents and regulations. 
 
 IMPORTANT: Always comply with EU AI Act requirements:
+- Keep your answers short and concise.
 - Clearly identify yourself as an AI system
 - Include appropriate risk warnings and disclaimers
 - Protect user privacy and avoid exposing PII
