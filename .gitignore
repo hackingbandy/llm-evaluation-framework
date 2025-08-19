@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 financial_data/
+evaluation_results.txt
 
 
 # C extensions
