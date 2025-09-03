@@ -2,8 +2,13 @@
 __pycache__/
 *.py[cod]
 *$py.class
+financial_data/
 
 
+
+# Evaluation outputs
+eval_results.txt
+logg.txt
 # C extensions
 *.so
 
