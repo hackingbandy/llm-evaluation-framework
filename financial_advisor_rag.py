@@ -599,13 +599,13 @@ def display_results(results, metrics_config):
         overall_score = np.mean(list(results.values()))
         print(f"\n🎯 Overall Score: {overall_score:.3f}")
 
-def save_results(results, metrics_config, total_questions):
+def save_results(results, metrics_config, total_entries):
     """Save results to file."""
     with open("evaluation_results.txt", "w") as f:
         f.write("FINANCIAL ADVISOR RAG EVALUATION\n")
         f.write("="*40 + "\n\n")
         f.write(f"Configuration: {metrics_config['evaluation_settings']['evaluation_model']}\n")
-        f.write(f"Total Questions Evaluated: {total_questions}\n")
+        f.write(f"Total Answers Evaluated: {total_entries}\n")
         f.write("Evaluation Method: LLM-based (all metrics)\n\n")
         
         for dimension, config in metrics_config["evaluation_dimensions"].items():
@@ -628,7 +628,7 @@ def save_results(results, metrics_config, total_questions):
             timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
             model = metrics_config['evaluation_settings']['evaluation_model']
             with open("logg.txt", "a") as logf:
-                logf.write(f"{timestamp} | overall={overall:.3f} | model={model} | questions={total_questions}\n")
+                logf.write(f"{timestamp} | overall={overall:.3f} | model={model} | answers={total_entries}\n")
     except Exception:
         pass
 
@@ -682,7 +682,7 @@ def main():
         save_qa_catalog(dataset, per_question_scores)
     # Display and save
     display_results(results, metrics_config)
-    save_results(results, metrics_config, len(questions))
+    save_results(results, metrics_config, len(dataset))
     
     print("\n✅ Evaluation complete! Results saved to evaluation_results.txt")
 
