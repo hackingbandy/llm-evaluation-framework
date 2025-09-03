@@ -6,6 +6,11 @@
 TEST_MODE = True
 
 
+# Steuer-Flag: Wenn True, werden Antworten vom Financial Advisor generiert.
+# Wenn False, werden Antworten aus qa_catalog.csv geladen und nur evaluiert.
+FINANCIAL_ADVISOR = False
+
+
 import os
 import json
 import pandas as pd
@@ -13,6 +18,7 @@ import numpy as np
 import re
 import warnings
 import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -419,6 +425,20 @@ def load_questions():
     df = pd.read_csv("catalog.csv")
     return df['Question'].tolist(), df['Category'].tolist()
 
+def load_preexisting_answers(path: str = "qa_catalog.csv"):
+    """Load pre-existing answers from qa_catalog.csv if available.
+    Returns a mapping: question -> answer.
+    """
+    if not os.path.exists(path):
+        return {}
+    try:
+        df = pd.read_csv(path)
+        if 'Question' in df.columns and 'Financial_Advisor_Answer' in df.columns:
+            return dict(zip(df['Question'], df['Financial_Advisor_Answer']))
+        return {}
+    except Exception:
+        return {}
+
 def create_dataset(rag, questions, categories):
     """Create evaluation dataset with progress bar."""
     dataset = []
@@ -442,6 +462,33 @@ def create_dataset(rag, questions, categories):
                 print(f"Error processing question: {e}")
                 continue
     
+    return dataset
+
+def create_dataset_with_existing_answers(rag, questions, categories, answers_map):
+    """Create dataset using pre-existing answers from answers_map.
+    Skips questions without an available answer.
+    """
+    dataset = []
+    with tqdm(total=len(questions), desc="Preparing dataset (existing answers)", unit="question") as pbar:
+        for question, category in zip(questions, categories):
+            try:
+                if question not in answers_map or not isinstance(answers_map[question], str) or len(str(answers_map[question]).strip()) == 0:
+                    pbar.update(1)
+                    continue
+                relevant_docs = rag.get_relevant_docs(question)
+                answer = answers_map[question]
+                dataset.append({
+                    "question": question,
+                    "contexts": relevant_docs,
+                    "answer": answer,
+                    "ground_truth": f"Financial advice for {category}",
+                    "category": category
+                })
+                pbar.update(1)
+            except Exception as e:
+                print(f"Error processing question with existing answer: {e}")
+                pbar.update(1)
+                continue
     return dataset
 
 def save_qa_catalog(dataset, per_question_scores=None, filename="qa_catalog.csv"):
@@ -574,6 +621,17 @@ def save_results(results, metrics_config, total_questions):
             overall = np.mean(list(results.values()))
             f.write(f"Overall Score: {overall:.3f}\n")
 
+    # Append overall score to logg file with timestamp
+    try:
+        if results:
+            overall = np.mean(list(results.values()))
+            timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+            model = metrics_config['evaluation_settings']['evaluation_model']
+            with open("logg.txt", "a") as logf:
+                logf.write(f"{timestamp} | overall={overall:.3f} | model={model} | questions={total_questions}\n")
+    except Exception:
+        pass
+
 # =============================================================================
 # Main Execution
 # =============================================================================
@@ -597,21 +655,31 @@ def main():
     questions, categories = load_questions()
     print(f"📋 Loaded {len(questions)} questions from catalog")
     
-    # TEST-MODUS: Nur 10 Fragen laden
+    # TEST-MODUS: Nur 1 Frage laden
     if TEST_MODE:
         questions = questions[:1]
-        categories = categories[:10]
+        categories = categories[:1]
         print(f"\n⚡ TEST MODE: Using only {len(questions)} questions!")
     
-    # Create dataset
-    print(f"\n🔄 Creating dataset...")
-    dataset = create_dataset(rag, questions, categories)
-    print(f"✅ Created dataset with {len(dataset)} entries")
+    # Create dataset je nach Modus
+    if FINANCIAL_ADVISOR:
+        print(f"\n🔄 Creating dataset (generate answers)...")
+        dataset = create_dataset(rag, questions, categories)
+        print(f"✅ Created dataset with {len(dataset)} entries")
+    else:
+        print(f"\n📄 Loading existing answers from qa_catalog.csv...")
+        answers_map = load_preexisting_answers("qa_catalog.csv")
+        if not answers_map:
+            print("⚠️  No existing answers found in qa_catalog.csv. Nothing to evaluate.")
+            return
+        dataset = create_dataset_with_existing_answers(rag, questions, categories, answers_map)
+        print(f"✅ Prepared dataset with {len(dataset)} entries (existing answers)")
     
     # Save QA catalog
     print(f"\n🔍 Running evaluation...")
     results, per_question_scores = run_evaluation(dataset, metrics_config)
-    save_qa_catalog(dataset, per_question_scores)
+    if FINANCIAL_ADVISOR:
+        save_qa_catalog(dataset, per_question_scores)
     # Display and save
     display_results(results, metrics_config)
     save_results(results, metrics_config, len(questions))
