@@ -601,7 +601,7 @@ def display_results(results, metrics_config):
 
 def save_results(results, metrics_config, total_entries):
     """Save results to file."""
-    with open("evaluation_results.txt", "w") as f:
+    with open("eval_results.txt", "w") as f:
         f.write("FINANCIAL ADVISOR RAG EVALUATION\n")
         f.write("="*40 + "\n\n")
         f.write(f"Configuration: {metrics_config['evaluation_settings']['evaluation_model']}\n")
@@ -684,7 +684,7 @@ def main():
     display_results(results, metrics_config)
     save_results(results, metrics_config, len(dataset))
     
-    print("\n✅ Evaluation complete! Results saved to evaluation_results.txt")
+    print("\n✅ Evaluation complete! Results saved to eval_results.txt")
 
 if __name__ == "__main__":
     main() 
