@@ -8,8 +8,8 @@ Evaluation Method: LLM-based (all metrics)
 Accuracy Performance:
   Assesses how effectively the LLM generates correct, relevant, and useful responses. It encompasses factual accuracy, relevance to the user's query, and overall correctness of the output.
   factual_accuracy: 1.000
-  relevance: 1.000
-  overall_correctness: 1.000
+  relevance: 0.800
+  overall_correctness: 0.800
 
 Robustness:
   Assesses the LLM's ability to consistently produce accurate, reliable, and unbiased outputs across diverse scenarios, even with noisy, ambiguous, or adversarial inputs.
@@ -29,4 +29,4 @@ Explainability Interpretability:
   Ensures transparent decision-making and interpretable outputs for effective human oversight.
   explainability: 1.000
 
-Overall Score: 0.978
+Overall Score: 0.933
