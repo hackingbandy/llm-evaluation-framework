@@ -6,6 +6,7 @@
 import os
 import sys
 import json
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 from financial_advisor_rag import FinancialAdvisorRAG, load_metrics_config
 

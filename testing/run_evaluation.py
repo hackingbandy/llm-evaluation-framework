@@ -5,6 +5,7 @@
 
 import os
 import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from financial_advisor_rag import main
 
 def check_requirements():

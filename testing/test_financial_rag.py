@@ -6,7 +6,7 @@ Tests that financial documents are loaded and EU AI Act evaluation works
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from financial_advisor_rag import FinancialAdvisorRAG, LLMEvaluator
 

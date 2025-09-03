@@ -3,7 +3,7 @@
 # =============================================================================
 
 # Test-Flag: Wenn True, werden nur 1 Fragen geladen
-TEST_MODE = False
+TEST_MODE = True
 
 
 import os
@@ -152,7 +152,9 @@ This Regulation is binding in its entirety and directly applicable in all Member
 
 def load_metrics_config():
     """Load metrics configuration from JSON file."""
-    with open("metrics_config.json", "r") as f:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(script_dir, "metrics_config.json")
+    with open(config_path, "r") as f:
         return json.load(f)
 
 class FinancialAdvisorRAG:
@@ -181,7 +183,8 @@ Base your advice on the provided financial documents and always cite your source
 
     def load_documents(self):
         """Load and process financial PDF documents from financial_data directory and KAGB website."""
-        financial_data_dir = "financial_data"
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        financial_data_dir = os.path.join(script_dir, "financial_data")
         
         if not os.path.exists(financial_data_dir):
             print(f"Warning: {financial_data_dir} directory not found. Using fallback content.")
@@ -217,7 +220,7 @@ Base your advice on the provided financial documents and always cite your source
                 continue
         
         # --- NEU: KAGB Website laden und parsen ---
-        print("🌐 Lade und parse KAGB-Website ...")
+        print("🌐 Lade und parse KAGB-Website & Finance Data...")
         try:
             kagb_url = "https://www.gesetze-im-internet.de/kagb/"
             response = requests.get(kagb_url, timeout=30)
